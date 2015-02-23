@@ -16,7 +16,7 @@ def treatment_by_parti(row,partis):
     for parti in partis:
         myPartis[parti] = row[parti]
 
-    #print myPartis
+    print myPartis
         
 
 
@@ -36,7 +36,11 @@ for filename in os.listdir(DATA_DIR):
         if annee <= 1981:
             with open(filepath,'r') as csvfile:
                 myCsv = csv.reader(csvfile, delimiter=',')
-                partis = myCsv.next()[7:]
+                if tour == "t1":
+                    partis = myCsv.next()[7:]
+                #One more field in t2
+                if tour == "t2":
+                    partis = myCsv.next()[8:]
 
         with open(filepath,'r') as csvfile:
 
