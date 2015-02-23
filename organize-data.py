@@ -46,6 +46,10 @@ for filename in os.listdir(DATA_DIR):
                 codeDepartement = row['Code département']
                 circo = row['circonscription']
 
+                if annee <= 1981 and tour=="t2" and row['élu premier tour']=='O':
+                    #Election have been settled at the first turn
+                    continue
+
                 if codeDepartement and circo :
 
                     if codeDepartement not in elec_par_circo:
