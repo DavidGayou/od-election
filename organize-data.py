@@ -53,35 +53,41 @@ for filename in listfiles:
         with open(filepath,'r') as csvfile:
             csvDict = csv.DictReader(csvfile, delimiter=',')
             for row in csvDict:
-                codeDepartement = row['Code département']
-                circo = row['circonscription']
+                try:
+                    codeDepartement = int(row['Code département'])
+                    circo = int(row['circonscription'])
+                except:
+                    continue
 
                 if annee <= 1981 and tour == "t2" and row.get("élu premier tour", "") == 'O':
                     #Election have been settled at the first turn
                     continue
 
-                if codeDepartement and circo :
+                if codeDepartement not in elec_par_circo:
+                    elec_par_circo[codeDepartement] = {}
+                if circo not in elec_par_circo[codeDepartement]:
+                    elec_par_circo[codeDepartement][circo] = {}
+                if annee not in elec_par_circo[codeDepartement][circo]:
+                    elec_par_circo[codeDepartement][circo][annee] = {}
+                if tour not in elec_par_circo[codeDepartement][circo][annee]:
+                    elec_par_circo[codeDepartement][circo][annee][tour] = {}
+                if 'partis' not in elec_par_circo[codeDepartement][circo][annee][tour]:
+                    elec_par_circo[codeDepartement][circo][annee][tour]['partis'] = {}
+                results = elec_par_circo[codeDepartement][circo][annee][tour]['partis']
 
-                    if codeDepartement not in elec_par_circo:
-                        elec_par_circo[codeDepartement] = {}
-                    if circo not in elec_par_circo[codeDepartement]:
-                        elec_par_circo[codeDepartement][circo] = {}
-                    if annee not in elec_par_circo[codeDepartement][circo]:
-                        elec_par_circo[codeDepartement][circo][annee] = {}
-                    if tour not in elec_par_circo[codeDepartement][circo][annee]:
-                        elec_par_circo[codeDepartement][circo][annee][tour] = {}
-                    if 'partis' not in elec_par_circo[codeDepartement][circo][annee][tour]:
-                        elec_par_circo[codeDepartement][circo][annee][tour]['partis'] = {}
-                    results = elec_par_circo[codeDepartement][circo][annee][tour]['partis']
-
-                #fileformat change after 1981
-                    if annee <= 1981:
-                        elec_par_circo[codeDepartement][circo][annee]["élu"] = treatment_by_parti(row, partis, results)
-                    else:
-                        elec_par_circo[codeDepartement][circo][annee]["élu"] = treatment_by_candidate(row, partis, results)
+            #fileformat change after 1981
+                if annee <= 1981:
+                    elec_par_circo[codeDepartement][circo][annee]["élu"] = treatment_by_parti(row, partis, results)
+                else:
+                    elec_par_circo[codeDepartement][circo][annee]["élu"] = treatment_by_candidate(row, partis, results)
 
         if tour == "t2":
-            for dep in elec_par_circo:
+            listdeps = elec_par_circo.keys()
+            listdeps.sort()
+            for dep in listdeps:
+                listcircs = elec_par_circo[dep].keys()
+                listcircs.sort()
                 for circ in elec_par_circo[dep]:
-                    print annee, dep, circ, elec_par_circo[dep][circ][annee]["élu"]
+                    if annee in elec_par_circo[dep][circ]:
+                        print annee, dep, circ, elec_par_circo[dep][circ][annee]["élu"]
 #print elec_par_circo
