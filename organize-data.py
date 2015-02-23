@@ -25,12 +25,8 @@ for filename in os.listdir(DATA_DIR):
    # LEGISLATIVES_1958-2012-csv/cdsp_legi1958t1_circ.csv
    #1986 are proportionnal election fucking up everything
     if filename.endswith('_circ.csv') and filename != 'cdsp_legi1986_circ.csv':
-        #print filename
-        #print "*************************************"
         annee = int(filename[9:13])
-        #print annee
         tour = filename[13:15]
-        #print tour
         partis = {}
 
         if annee <= 1981:
@@ -47,9 +43,7 @@ for filename in os.listdir(DATA_DIR):
             csvDict = csv.DictReader(csvfile, delimiter=',') 
             for row in csvDict:
                 codeDepartement = row['Code département']
-                #print codeDepartement
                 circo = row['circonscription']
-                #print circo
                 
                 if codeDepartement and circo :
 
