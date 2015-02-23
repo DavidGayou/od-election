@@ -1,22 +1,19 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import csv
-import os
+
+import os, csv, sys
 
 DATA_DIR = "LEGISLATIVES_1958-2012-csv"
 
 elec_par_circo = {}
 
 def treatment_by_candidate(row, partis, results):
-    #print "====================================="
     for parti, k in partis:
         results[parti] = row[k]
 
 def treatment_by_parti(row, partis, results):
-    #print "====================================="
     for parti in partis:
         results[parti] = row[parti]
-
 
 for filename in os.listdir(DATA_DIR):
     filepath = os.path.join(DATA_DIR, filename)
@@ -36,11 +33,12 @@ for filename in os.listdir(DATA_DIR):
                 if tour == "t2":
                     partis = myCsv.next()[8:]
             else:
-                keys = [i for i, v in enumerate(myCsv.next()) if "nuance" in v]
+                fields = myCsv.next()
+                keys = [i for i, v in enumerate(fields) if "nuance" in v]
                 for r in myCsv:
                     for k in keys:
                         if r[k] not in partis:
-                            partis.append((r[k],k+1))
+                            partis.append((r[k],fields[k+1]))
 
         with open(filepath,'r') as csvfile:
             csvDict = csv.DictReader(csvfile, delimiter=',')
