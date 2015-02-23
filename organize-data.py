@@ -5,19 +5,17 @@ import os
 
 DATA_DIR = "LEGISLATIVES_1958-2012-csv"
 
-elec_par_circo= {}
+elec_par_circo = {}
 
-def treatment_by_parti(row,partis):
+def treatment_by_candidate(row, partis, results):
     #print "====================================="
-    if 'partis' not in elec_par_circo[codeDepartement][circo][annee][tour]:
-        elec_par_circo[codeDepartement][circo][annee][tour]['partis'] = {}
+    for parti, k in partis:
+        results[parti] = row[k]
 
-    myPartis = elec_par_circo[codeDepartement][circo][annee][tour]['partis']
+def treatment_by_parti(row, partis, results):
+    #print "====================================="
     for parti in partis:
-        myPartis[parti] = row[parti]
-
-    print myPartis
-        
+        results[parti] = row[parti]
 
 
 for filename in os.listdir(DATA_DIR):
@@ -29,47 +27,46 @@ for filename in os.listdir(DATA_DIR):
         tour = filename[13:15]
         partis = {}
 
-        if annee <= 1981:
-            with open(filepath,'r') as csvfile:
-                myCsv = csv.reader(csvfile, delimiter=',')
+        with open(filepath,'r') as csvfile:
+            myCsv = csv.reader(csvfile, delimiter=',')
+            if annee <= 1981:
                 if tour == "t1":
                     partis = myCsv.next()[7:]
                 #One more field in t2
                 if tour == "t2":
                     partis = myCsv.next()[8:]
+            else:
+                keys = [i for i, v in enumerate(myCsv.next()) if "nuance" in v]
+                for r in myCsv:
+                    for k in keys:
+                        if r[k] not in partis:
+                            partis.append((r[k],k+1))
 
         with open(filepath,'r') as csvfile:
-
-            csvDict = csv.DictReader(csvfile, delimiter=',') 
+            csvDict = csv.DictReader(csvfile, delimiter=',')
             for row in csvDict:
                 codeDepartement = row['Code département']
                 circo = row['circonscription']
-                
+
                 if codeDepartement and circo :
 
-                    if codeDepartement not in  elec_par_circo:
+                    if codeDepartement not in elec_par_circo:
                         elec_par_circo[codeDepartement] = {}
                     if circo not in elec_par_circo[codeDepartement]:
                         elec_par_circo[codeDepartement][circo] = {}
                     if annee not in elec_par_circo[codeDepartement][circo]:
-                        elec_par_circo[codeDepartement][circo][annee]={}
+                        elec_par_circo[codeDepartement][circo][annee] = {}
                     if tour not in elec_par_circo[codeDepartement][circo][annee]:
-                        elec_par_circo[codeDepartement][circo][annee][tour]={}
+                        elec_par_circo[codeDepartement][circo][annee][tour] = {}
+                    if 'partis' not in elec_par_circo[codeDepartement][circo][annee][tour]:
+                        elec_par_circo[codeDepartement][circo][annee][tour]['partis'] = {}
+                    results = elec_par_circo[codeDepartement][circo][annee][tour]['partis']
 
-
-                    #fileformat change after 1981
-                    
+                #fileformat change after 1981
                     if annee <= 1981:
-                        treatment_by_parti(row,partis)
+                        treatment_by_parti(row, partis, results)
+                    else:
+                        treatment_by_candidate(row, partis, results)
 
 
-                    #if 'partis' not in elec_par_circo[codeDepartement][circo][annee][tour]:
-                    #    elec_par_circo[codeDepartement][circo][annee][tour]['partis'] = {}
-
-                    #for parti in row.keys()[7:]:
-                    #    print parti
-                    #elec_par_circo[codeDepartement][circo][annee][tour]['partis']
-                
-                
-               
 #print elec_par_circo
