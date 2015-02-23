@@ -8,14 +8,24 @@ DATA_DIR = "LEGISLATIVES_1958-2012-csv"
 elec_par_circo = {}
 
 def treatment_by_candidate(row, partis, results):
+    winner = (None, 0)
     for parti, k in partis:
         results[parti] = row[k]
+        if row[k] > winner[1]:
+            winner = (parti, row[k])
+    return winner[0]
 
 def treatment_by_parti(row, partis, results):
+    winner = (None, 0)
     for parti in partis:
         results[parti] = row[parti]
+        if row[parti] > winner[1]:
+            winner = (parti, row[parti])
+    return winner[0]
 
-for filename in os.listdir(DATA_DIR):
+listfiles = os.listdir(DATA_DIR)
+listfiles.sort()
+for filename in listfiles:
     filepath = os.path.join(DATA_DIR, filename)
    # LEGISLATIVES_1958-2012-csv/cdsp_legi1958t1_circ.csv
    #1986 are proportionnal election fucking up everything
@@ -29,7 +39,7 @@ for filename in os.listdir(DATA_DIR):
             if annee <= 1981:
                 if tour == "t1":
                     partis = myCsv.next()[7:]
-                #One more field in t2
+            #One more field in t2
                 if tour == "t2":
                     partis = myCsv.next()[8:]
             else:
@@ -46,7 +56,7 @@ for filename in os.listdir(DATA_DIR):
                 codeDepartement = row['Code département']
                 circo = row['circonscription']
 
-                if annee <= 1981 and tour=="t2" and row['élu premier tour']=='O':
+                if annee <= 1981 and tour == "t2" and row.get("élu premier tour", "") == 'O':
                     #Election have been settled at the first turn
                     continue
 
@@ -66,9 +76,12 @@ for filename in os.listdir(DATA_DIR):
 
                 #fileformat change after 1981
                     if annee <= 1981:
-                        treatment_by_parti(row, partis, results)
+                        elec_par_circo[codeDepartement][circo][annee]["élu"] = treatment_by_parti(row, partis, results)
                     else:
-                        treatment_by_candidate(row, partis, results)
+                        elec_par_circo[codeDepartement][circo][annee]["élu"] = treatment_by_candidate(row, partis, results)
 
-
+        if tour == "t2":
+            for dep in elec_par_circo:
+                for circ in elec_par_circo[dep]:
+                    print annee, dep, circ, elec_par_circo[dep][circ][annee]["élu"]
 #print elec_par_circo
