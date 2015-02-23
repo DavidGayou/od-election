@@ -25,7 +25,7 @@ for filename in os.listdir(DATA_DIR):
     if filename.endswith('_circ.csv') and filename != 'cdsp_legi1986_circ.csv':
         annee = int(filename[9:13])
         tour = filename[13:15]
-        partis = {}
+        partis = []
 
         with open(filepath,'r') as csvfile:
             myCsv = csv.reader(csvfile, delimiter=',')
